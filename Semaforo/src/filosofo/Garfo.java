@@ -10,11 +10,11 @@ public class Garfo {
 		this.estado = false;
 	}
 
-	public synchronized void pegar() {
+	public  void pegar() {
 		this.estado = true;
 	}
 
-	public synchronized void largar() {
+	public void largar() {
 
 		this.estado = false;
 	}

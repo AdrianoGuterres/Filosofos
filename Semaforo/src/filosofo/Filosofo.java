@@ -11,6 +11,8 @@ public class Filosofo extends Thread{
 	private Tijela tijela;
 
 	private Semaphore sem;
+	
+	private long vezes;
 
 	public Filosofo(String nome, Garfo garfoDireito, Garfo garfoEsquerdo, Tijela tijela, Semaphore sem) {
 		this.nome = nome;
@@ -18,85 +20,64 @@ public class Filosofo extends Thread{
 		this.garfoEsquerdo = garfoEsquerdo;
 		this.tijela = tijela;
 		this.sem = sem;
+		this.vezes = 0;
 	}
-
-
-	public void comer() {
-
-		while(tijela.getQuantidade() >1) {
-			
-		
-			if (garfoDireito.getEstado() == false) {
-				garfoDireito.pegar();
-				System.out.println("O filosofo "+nome+ " pegou o garfo "+garfoDireito.getNumero()+"\n");
-
-				if( garfoEsquerdo.getEstado() == false ) {						
-					garfoEsquerdo.pegar();
-					System.out.println("O filosofo "+nome+ " pegou o garfo "+garfoEsquerdo.getNumero()+"\n");
-
-					try {
-						sem.acquire();
-						tijela.setQuantidade(tijela.getQuantidade() -5);
-
-
-						System.out.println("O filosofo "+nome+ " esta comendo!" +
-								"\nRestam "+tijela.getQuantidade()+ " porções na tijela.\n");
-						
-						
-						garfoDireito.largar();
-						garfoEsquerdo.largar();
-						System.out.println("O filosofo "+nome+ " largou o garfo "+garfoDireito.getNumero() +
-								"\nO filosofo "+nome+ " largou o garfo "+garfoEsquerdo.getNumero()+"\n");
-
-
-						sem.release();
-						esperar();
-
-					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-
-
-				} else {
-					garfoDireito.largar();		
-					System.out.println("O filosofo "+nome+ " largou o garfo "+garfoDireito.getNumero()+"\n");
-
-					sem.release();
-					esperar();
-				}
-
-
-			} else {
-				garfoEsquerdo.largar();
-				System.out.println("O filosofo "+nome+ " largou o garfo "+garfoDireito.getNumero()+"\n" );
-
-				sem.release();
-				esperar();
-			}
-
-		}		
-
-		System.out.println("Acabou a comida da tijela!\nO filosofo "+nome+" parou de comer e esta pensando...\n ");
-
-	}
-
-	
-
-	public void esperar() {
-		try {
-			sleep(500);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-
 
 
 	@Override
 	public void run() {		
-		comer();			
-	}
+		while(tijela.getQuantidade() >1) {
+
+
+			if(garfoDireito.getEstado() == false && garfoEsquerdo.getEstado() == false) {
+				garfoDireito.pegar();
+				garfoEsquerdo.pegar();
+
+
+				try {
+					sem.acquire();
+					
+					System.out.println("O filosofo "+nome+ " pegou o garfo "+garfoDireito.getNumero() +
+							"\nO filosofo "+nome+ " pegou o garfo "+garfoEsquerdo.getNumero() +
+							"\nO filosofo "+nome+ " esta comendo!" +
+							"\nRestam "+tijela.getQuantidade()+ " porções na tijela.\n");
+					
+					tijela.setQuantidade(tijela.getQuantidade() -1);
+					
+					vezes++;
+
+					garfoDireito.largar();
+					garfoEsquerdo.largar();
+					System.out.println("O filosofo "+nome+ " largou o garfo direito "+garfoDireito.getNumero() +
+							"\nO filosofo "+nome+ " largou o garfo esquerdo "+garfoEsquerdo.getNumero()+"\n");		
+
+					sem.release();
+					sleep(500);
+
+				} catch (InterruptedException e) {}	
+
+			}else if(garfoDireito.getEstado() == true && garfoEsquerdo.getEstado() == false) {
+			
+				
+				System.out.println("O filosofo "+nome+ " esta esperando o garfo direito "+garfoDireito.getNumero()+"\n");	
+				try { sleep(500); } catch (InterruptedException e) {}
+
+			}else if(garfoDireito.getEstado() == false && garfoEsquerdo.getEstado() == true) {
+			
+				System.out.println("O filosofo "+nome+ " esta esperando o garfo esquerdo "+garfoEsquerdo.getNumero()+"\n");
+				try { sleep(500); } catch (InterruptedException e) {}
+
+			}else if(garfoDireito.getEstado() == true && garfoEsquerdo.getEstado() == true) {
+				System.out.println("O filosofo "+nome+ " esta esperando ambos os garfos "+garfoDireito.getNumero()+" e "+garfoEsquerdo.getNumero()+"\n");
+				try { sleep(500); } catch (InterruptedException e) {}
+			}
+
+
+		}		
+		
+		double aux = (vezes*100)/tijela.getQuantidade();
+
+		System.out.println("Acabou a comida da tijela!\nO filosofo "+nome+" parou de comer e esta pensando... e comeu "+vezes+" vezes, cerca de "+ aux  +" %!\n ");
+	}				
 
 }

@@ -2,20 +2,20 @@ package filosofo;
 
 import java.util.concurrent.Semaphore;
 
-public class start {
+public class Start {
 	
 
 	public static void main(String[] args) {
 		
-		final Tijela tijela = new Tijela(50);
+		final Tijela tijela = new Tijela(5000);
 		
-		Semaphore sem = new Semaphore(2);
+		Semaphore sem = new Semaphore(1);
 
-		Garfo garfo01 = new Garfo(01);
-		Garfo garfo02 = new Garfo(02);
-		Garfo garfo03 = new Garfo(03);
-		Garfo garfo04 = new Garfo(04);
-		Garfo garfo05 = new Garfo(05);
+		 Garfo garfo01 = new Garfo(1);
+		 Garfo garfo02 = new Garfo(2);
+		 Garfo garfo03 = new Garfo(3);
+		 Garfo garfo04 = new Garfo(4);
+		 Garfo garfo05 = new Garfo(5);
 		
 		Filosofo fil01 = new Filosofo("Marx",       garfo01, garfo02, tijela, sem);
 		Filosofo fil02 = new Filosofo("Engels",     garfo02, garfo03, tijela, sem);

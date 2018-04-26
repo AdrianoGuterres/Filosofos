@@ -12,7 +12,12 @@ public class Filosofo extends Thread{
 
 	private Semaphore sem;
 	
-	private long vezes;
+	private int totalInicial;
+
+	private long vezesComeu;
+	private int vezesEsperou;
+	private int vezesEsperouDireito ;
+	private int vezesEsperouEsquerdo;
 
 	public Filosofo(String nome, Garfo garfoDireito, Garfo garfoEsquerdo, Tijela tijela, Semaphore sem) {
 		this.nome = nome;
@@ -20,64 +25,88 @@ public class Filosofo extends Thread{
 		this.garfoEsquerdo = garfoEsquerdo;
 		this.tijela = tijela;
 		this.sem = sem;
-		this.vezes = 0;
+		
+		this.vezesComeu = 0;
+		this.vezesEsperou = 0;
+		this.vezesEsperouDireito = 0;
+		this.vezesEsperouEsquerdo = 0;
+		
+		this.totalInicial = tijela.getQuantidade();
+
 	}
 
 
 	@Override
 	public void run() {		
-		while(tijela.getQuantidade() >1) {
 
+			while(tijela.getQuantidade() >1) {
 
-			if(garfoDireito.getEstado() == false && garfoEsquerdo.getEstado() == false) {
-				garfoDireito.pegar();
-				garfoEsquerdo.pegar();
+				if(garfoDireito.getEstado() == false && garfoEsquerdo.getEstado() == false) {
+					garfoDireito.pegar();
+					garfoEsquerdo.pegar();
 
-
-				try {
-					sem.acquire();
-					
 					System.out.println("O filosofo "+nome+ " pegou o garfo "+garfoDireito.getNumero() +
-							"\nO filosofo "+nome+ " pegou o garfo "+garfoEsquerdo.getNumero() +
-							"\nO filosofo "+nome+ " esta comendo!" +
-							"\nRestam "+tijela.getQuantidade()+ " porções na tijela.\n");
+							"\nO filosofo "+nome+ " pegou o garfo "+garfoEsquerdo.getNumero() +"\n" );					
 					
-					tijela.setQuantidade(tijela.getQuantidade() -1);
+					comer();					
+
 					
-					vezes++;
 
-					garfoDireito.largar();
-					garfoEsquerdo.largar();
-					System.out.println("O filosofo "+nome+ " largou o garfo direito "+garfoDireito.getNumero() +
-							"\nO filosofo "+nome+ " largou o garfo esquerdo "+garfoEsquerdo.getNumero()+"\n");		
+				}else if(garfoDireito.getEstado() == true && garfoEsquerdo.getEstado() == false) {	
+					vezesEsperouDireito ++;
+					System.out.println("O filosofo "+nome+ " esta esperando o garfo direito "+garfoDireito.getNumero()+"\n");
+					try {sleep(100);} catch (InterruptedException e) {}
 
-					sem.release();
-					sleep(500);
+				}else if(garfoDireito.getEstado() == false && garfoEsquerdo.getEstado() == true) {
+					vezesEsperouEsquerdo ++;
+					System.out.println("O filosofo "+nome+ " esta esperando o garfo esquerdo "+garfoEsquerdo.getNumero()+"\n");
+					try {sleep(100);} catch (InterruptedException e) {}
 
-				} catch (InterruptedException e) {}	
+				}else if(garfoDireito.getEstado() == true && garfoEsquerdo.getEstado() == true) {
+					System.out.println("O filosofo "+nome+ " esta esperando ambos os garfos "+garfoDireito.getNumero()+" e "+garfoEsquerdo.getNumero()+"\n");
+					vezesEsperou ++;
+					try {sleep(100);} catch (InterruptedException e) {}
+				}			
 
-			}else if(garfoDireito.getEstado() == true && garfoEsquerdo.getEstado() == false) {
-			
-				
-				System.out.println("O filosofo "+nome+ " esta esperando o garfo direito "+garfoDireito.getNumero()+"\n");	
-				try { sleep(500); } catch (InterruptedException e) {}
+			}	
 
-			}else if(garfoDireito.getEstado() == false && garfoEsquerdo.getEstado() == true) {
-			
-				System.out.println("O filosofo "+nome+ " esta esperando o garfo esquerdo "+garfoEsquerdo.getNumero()+"\n");
-				try { sleep(500); } catch (InterruptedException e) {}
-
-			}else if(garfoDireito.getEstado() == true && garfoEsquerdo.getEstado() == true) {
-				System.out.println("O filosofo "+nome+ " esta esperando ambos os garfos "+garfoDireito.getNumero()+" e "+garfoEsquerdo.getNumero()+"\n");
-				try { sleep(500); } catch (InterruptedException e) {}
+			if(vezesComeu != 0) {
+				double aux = ((double)vezesComeu*100.0)/(double)totalInicial;	
+				System.out.println("Acabou a comida da tijela!\nO filosofo "+nome+" parou de comer e esta pensando... e comeu "+vezesComeu+" vezes, cerca de "+ aux  +" %!\n ");
+			} else { 
+				int aux = vezesEsperou + vezesEsperouDireito + vezesEsperouEsquerdo;
+				System.out.println("Acabou a comida da tijela!\nO filosofo "+nome+" Morreu de fome. Esperou "+aux+" vezes!");		
+				System.out.println("Esperou "+vezesEsperouDireito+" vezes pelo garfo direito!");	
+				System.out.println("Esperou "+vezesEsperouEsquerdo+" vezes pelo garfo esquerdo!");	
+				System.out.println("Esperou "+vezesEsperou+" vezes pelos dois garfoso!");	
 			}
 
-
-		}		
 		
-		double aux = (vezes*100)/tijela.getQuantidade();
+	}			
 
-		System.out.println("Acabou a comida da tijela!\nO filosofo "+nome+" parou de comer e esta pensando... e comeu "+vezes+" vezes, cerca de "+ aux  +" %!\n ");
-	}				
+	private void comer() {		
+		try {
+			sem.acquire();
+			vezesComeu++;
+			tijela.setQuantidade(tijela.getQuantidade() -1);
+			System.out.println("O filosofo "+nome+ " esta comendo!" +
+					"\nRestam "+tijela.getQuantidade()+ " porções na tijela.\n");			
+			sleep(5000);
+			pensar();
+
+		} catch (InterruptedException e) {System.out.println(e);}		
+	}
+
+	private void pensar() {
+
+		garfoDireito.largar();
+		garfoEsquerdo.largar();
+		System.out.println("O filosofo "+nome+ " largou o garfo direito "+garfoDireito.getNumero() +
+				"\nO filosofo "+nome+ " largou o garfo esquerdo "+garfoEsquerdo.getNumero()+
+				"\nO filosofo "+nome+ " esta pensando!"+"\n");		
+		sem.release();	
+		try { sleep(2000); } catch (InterruptedException e) {}
+
+	}
 
 }

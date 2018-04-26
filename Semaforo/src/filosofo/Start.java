@@ -12,33 +12,73 @@ public class Start {
 		
 		Scanner scanner = new Scanner(System.in);
 		
-		System.out.println("\n              Bem vindo ao jantar dos filosofos!"
-				          +"\nA proposta é simples, N filosofos disputam N garfos para poder comer,"
-				          +"\no que alternam com a ação de pensar. Para tanto cada um leva 5 segundos comendo "
-				          +"\ne 2 segundos pensando. Para uma nova tentativa é esperado uma pausa entre 0 e 3 segundos!"
-				       + "\n\nEntão, primeiro, defina a quantidade de comida na tijela principal: ");
+		System.out.println("\n	              Bem vindo ao jantar dos filosofos!"
+				          +"\n	A proposta é simples, N filosofos disputam N garfos para poder comer,"
+				          +"\n	o que alternam com a ação de pensar. Para tanto cada um leva 5 segundos comendo "
+				          +"\n	e 2 segundos pensando. Para uma nova tentativa é esperado uma pausa entre 0 e 3 segundos!"
+				       + "\n\n	Então, primeiro, defina a quantidade de comida na tijela principal: ");
 		
-		int quantidadeTijela = scanner.nextInt();
+		int quantidadeTijela = 0;
+		quantidadeTijela = scanner.nextInt();
 		
-		System.out.println("\n\nAgora defina quantos filosofos e garfos participarão do jantar:");
+		System.out.println("\n	Agora defina quantos filosofos e garfos participarão do jantar:");
 		
-		int n = scanner.nextInt();
+		int n = 0;
+		n= scanner.nextInt();
+		System.out.println("\n	O jantar iniciara em:\n");
 		
-		System.out.println("\n			O jantar iniciara em:");
+		Thread t = new Thread() {
+			public void run(){				
+				for(int i = 5; i>=0; i--) {
+					System.out.println("		"+i+ " segundos...\n");	
+					try {sleep(1000); } catch (InterruptedException e) {}					
+				}				
+			}
+		};
 		
-		Thread t = new Thread();
+		t.run();
 		
-		for(int i = 5; i>=0; i--) {
-			System.out.println("\n		"+i+ " segundos...");	
-			try {t.sleep(1000); } catch (InterruptedException e) {}
+		final Tijela tijela = new Tijela(quantidadeTijela);
+		
+		
+		Semaphore [] semArray = new Semaphore[n];
+		
+		for(int i = 0 ; i < semArray.length; i++) {
+			semArray[i] = new Semaphore(1);			
+		}
+		
+		Garfo [] garfoArray = new Garfo[n];
+		for(int i = 0 ; i < garfoArray.length; i++) {
+			garfoArray[i] = new Garfo(i+1, semArray[i]);			
+		}
+		
+		
+		Filosofo [] filoArray = new Filosofo[n];
+		
+		Semaphore sem = new Semaphore(1);
+		
+		for(int i = 0; i < filoArray.length; i++) {
+			if(i < filoArray.length-1) {
+				filoArray[i] = new Filosofo(""+(i+1), garfoArray[i], garfoArray[i+1], tijela, sem);			
+			}else {
+				filoArray[i] = new Filosofo(""+(i+1), garfoArray[i], garfoArray[0], tijela, sem);	
+			}		
+		}
+		
+		
+		for(int i = 0; i<filoArray.length; i++) {
+			
+			filoArray[i].start();		
+			System.out.println("O filosofo "+filoArray[i].getNome()+" começou a jantar!");
 			
 		}
 		
 		
 		
-		final Tijela tijela = new Tijela(100);
 		
-		Semaphore sem = new Semaphore(1);
+		
+		
+		/*
 		
 		Semaphore semG1 = new Semaphore(1);
 		Semaphore semG2 = new Semaphore(1);
@@ -63,6 +103,8 @@ public class Start {
 		fil03.start();
 		fil04.start();
 		fil05.start();
+		
+		*/
 	}
 
 }

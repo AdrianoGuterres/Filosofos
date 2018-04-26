@@ -1,5 +1,6 @@
 package filosofo;
 
+import java.util.Random;
 import java.util.concurrent.Semaphore;
 
 public class Filosofo extends Thread{
@@ -39,7 +40,7 @@ public class Filosofo extends Thread{
 	@Override
 	public void run() {		
 
-			while(tijela.getQuantidade() >1) {
+			while(tijela.getQuantidade() >0) {
 
 				if(garfoDireito.getEstado() == false && garfoEsquerdo.getEstado() == false) {
 					garfoDireito.pegar();
@@ -55,17 +56,26 @@ public class Filosofo extends Thread{
 				}else if(garfoDireito.getEstado() == true && garfoEsquerdo.getEstado() == false) {	
 					vezesEsperouDireito ++;
 					System.out.println("O filosofo "+nome+ " esta esperando o garfo direito "+garfoDireito.getNumero()+"\n");
-					try {sleep(100);} catch (InterruptedException e) {}
+					
+					Random ran = new Random();
+					
+					try {sleep(ran.nextInt(3000));} catch (InterruptedException e) {}
 
 				}else if(garfoDireito.getEstado() == false && garfoEsquerdo.getEstado() == true) {
 					vezesEsperouEsquerdo ++;
 					System.out.println("O filosofo "+nome+ " esta esperando o garfo esquerdo "+garfoEsquerdo.getNumero()+"\n");
-					try {sleep(100);} catch (InterruptedException e) {}
+
+					Random ran = new Random();
+					
+					try {sleep(ran.nextInt(3000));} catch (InterruptedException e) {}
 
 				}else if(garfoDireito.getEstado() == true && garfoEsquerdo.getEstado() == true) {
 					System.out.println("O filosofo "+nome+ " esta esperando ambos os garfos "+garfoDireito.getNumero()+" e "+garfoEsquerdo.getNumero()+"\n");
 					vezesEsperou ++;
-					try {sleep(100);} catch (InterruptedException e) {}
+					
+					Random ran = new Random();
+					
+					try {sleep(ran.nextInt(3000));} catch (InterruptedException e) {}
 				}			
 
 			}	
@@ -108,5 +118,22 @@ public class Filosofo extends Thread{
 		try { sleep(2000); } catch (InterruptedException e) {}
 
 	}
+
+
+	public Garfo getGarfoDireito() {
+		return garfoDireito;
+	}
+
+
+	public Garfo getGarfoEsquerdo() {
+		return garfoEsquerdo;
+	}
+
+
+	public String getNome() {
+		return nome;
+	}
+	
+	
 
 }

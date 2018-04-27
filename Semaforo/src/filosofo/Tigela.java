@@ -1,10 +1,10 @@
 package filosofo;
 
-public class Tijela {
+public class Tigela {
 	
 	private int quantidade;
 
-	public Tijela(int quantidade) {
+	public Tigela(int quantidade) {
 		super();
 		this.quantidade = quantidade;
 	}

@@ -21,8 +21,6 @@ public class Garfo {
 			this.estado = true;
 			
 		} catch (InterruptedException e) {}
-		
-		this.estado = true;
 	}
 
 	public void largar() {

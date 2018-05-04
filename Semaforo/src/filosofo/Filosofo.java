@@ -40,9 +40,12 @@ public class Filosofo extends Thread{
 
 		while(tigela.getQuantidade() >0) {
 			try {
+				
 				sem.acquire();
+				
 
 				if((garfoDireito.getEstado() == false) && (garfoEsquerdo.getEstado() == false) && tigela.getQuantidade() >0) {
+					
 					garfoDireito.pegar();
 					garfoEsquerdo.pegar();
 
@@ -53,15 +56,16 @@ public class Filosofo extends Thread{
 					vezesComeu++;
 					tigela.setQuantidade(tigela.getQuantidade() -1);
 					System.out.println("O filosofo "+getName()+ " esta comendo!" +
-							"\nRestam "+tigela.getQuantidade()+ " porções na tigela.\n");			
-					sleep(2000);
+							"\nRestam "+tigela.getQuantidade()+ " porções na tigela.\n");	
+					sem.release();	
+					sleep(2000);					
 
 					garfoDireito.largar();
 					garfoEsquerdo.largar();
 					System.out.println("O filosofo "+getName()+ " largou o garfo direito "+garfoDireito.getNumero() +
 							"\nO filosofo "+getName()+ " largou o garfo esquerdo "+garfoEsquerdo.getNumero()+
 							"\nO filosofo "+getName()+ " esta pensando!"+"\n");		
-					sem.release();	
+					
 					try { sleep(5000); } catch (InterruptedException e) {}
 
 
@@ -88,11 +92,7 @@ public class Filosofo extends Thread{
 				
 				sem.release();
 			} catch (InterruptedException e) {System.out.println(e);}	
-
-
 		}	
-
-
 
 		if(vezesComeu != 0) {
 			double aux = ((double)vezesComeu*100.0)/(double)totalInicial;	
